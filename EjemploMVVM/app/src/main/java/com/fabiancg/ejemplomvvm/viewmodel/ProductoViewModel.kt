@@ -38,7 +38,10 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
 
                 // Actualizar el estado con los productos obtenidos.
                 _uiState.update {
-                    it.copy(productos = ordenar(productos, it.orden), cargando = false)
+                    it.copy(
+                        productos = ordenar(productos, it.orden, it.ascendente),
+                        cargando = false
+                    )
                 }
             } catch (e: Exception) {
 
@@ -82,10 +85,18 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         }
     }
 
-    // Cambia el criterio de orden y reordena la lista que ya está en pantalla.
+    // Cambia el orden y reordena la lista que ya está en pantalla.
     fun cambiarOrden(orden: OrdenProductos) {
         _uiState.update {
-            it.copy(orden = orden, productos = ordenar(it.productos, orden))
+            // Si se toca el orden que ya está activo, se invierte el sentido.
+            // Si se toca el otro, parte en ascendente.
+            val ascendente = if (it.orden == orden) !it.ascendente else true
+
+            it.copy(
+                orden = orden,
+                ascendente = ascendente,
+                productos = ordenar(it.productos, orden, ascendente)
+            )
         }
     }
 
@@ -196,7 +207,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                 // Actualizar el estado de la interfaz.
                 _uiState.update {
                     limpiarFormulario(it).copy(
-                        productos = ordenar(listaActualizada, it.orden),
+                        productos = ordenar(listaActualizada, it.orden, it.ascendente),
                         procesando = false,
                         mensaje = if (editando) "Producto actualizado correctamente."
                                   else "Producto registrado correctamente."
@@ -236,7 +247,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                         estado
                     }
                     nuevoEstado.copy(
-                        productos = ordenar(listaActualizada, estado.orden),
+                        productos = ordenar(listaActualizada, estado.orden, estado.ascendente),
                         procesando = false,
                         mensaje = if (eliminado) "Producto eliminado correctamente." else null,
                         error = if (eliminado) null else "El producto ya no existe."
@@ -254,20 +265,32 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         _uiState.update { it.copy(error = texto, mensaje = null) }
     }
 
-    // Devuelve la lista ordenada según el criterio elegido.
-    private fun ordenar(productos: List<Producto>, orden: OrdenProductos): List<Producto> {
+    // Devuelve la lista ordenada según el criterio y el sentido elegidos.
+    private fun ordenar(
+        productos: List<Producto>,
+        orden: OrdenProductos,
+        ascendente: Boolean
+    ): List<Producto> {
         // Comparar nombres sin distinguir mayúsculas de minúsculas.
         val porNombre = compareBy<Producto, String>(String.CASE_INSENSITIVE_ORDER) { it.nombre }
             .thenBy { it.codigo }
 
-        return when (orden) {
-            // Por nombre, de la A a la Z.
-            OrdenProductos.NOMBRE -> productos.sortedWith(porNombre)
-            // Por precio, de menor a mayor. Si el precio es igual, por nombre.
-            OrdenProductos.PRECIO -> productos.sortedWith(
-                compareBy<Producto> { it.precio }.then(porNombre)
-            )
+        val comparador = when (orden) {
+            // Por nombre: de la A a la Z, o de la Z a la A.
+            OrdenProductos.NOMBRE ->
+                if (ascendente) porNombre else porNombre.reversed()
+
+            // Por precio: de menor a mayor, o de mayor a menor.
+            // Si el precio es igual, siempre por nombre de la A a la Z.
+            OrdenProductos.PRECIO -> {
+                val porPrecio =
+                    if (ascendente) compareBy<Producto> { it.precio }
+                    else compareByDescending<Producto> { it.precio }
+                porPrecio.then(porNombre)
+            }
         }
+
+        return productos.sortedWith(comparador)
     }
 
     // Convierte el largo guardado en el texto que se muestra al editar.

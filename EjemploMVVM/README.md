@@ -80,7 +80,7 @@ Compose actualiza la pantalla automáticamente
 - **Actualizar:** al tocar **Editar**, rellena el formulario y bloquea el código. Permite modificar nombre, precio, largo y estado; se conserva fecha original.
 - **Eliminar:** al tocar **Eliminar**, aparece un diálogo de confirmación. Al aceptar, se borra el registro seleccionado.
 - **Cancelar edición:** vuelve al modo Registrar con el formulario limpio.
-- **Ordenar:** junto al botón Registrar hay dos botones, **Nombre** (A a Z) y **Precio** (menor a mayor). El orden activo se muestra relleno y se mantiene al registrar, editar o eliminar.
+- **Ordenar:** junto al botón Registrar hay dos botones, **Nombre** y **Precio**. El primer toque ordena de forma ascendente (A a Z, o menor a mayor precio); tocar de nuevo el mismo botón lo invierte a descendente. El orden activo se muestra relleno con una flecha (↑ ascendente, ↓ descendente) y se mantiene al registrar, editar o eliminar.
 
 ## Cómo probar
 

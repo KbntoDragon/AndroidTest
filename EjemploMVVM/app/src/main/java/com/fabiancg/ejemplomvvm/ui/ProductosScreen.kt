@@ -262,14 +262,17 @@ private fun FormularioProducto(
                 }
 
                 // Botones para ordenar la lista de productos.
+                // Tocar el botón activo invierte el sentido (ascendente/descendente).
                 BotonOrden(
                     texto = "Nombre",
                     seleccionado = estado.orden == OrdenProductos.NOMBRE,
+                    ascendente = estado.ascendente,
                     onClick = { onOrdenChange(OrdenProductos.NOMBRE) }
                 )
                 BotonOrden(
                     texto = "Precio",
                     seleccionado = estado.orden == OrdenProductos.PRECIO,
+                    ascendente = estado.ascendente,
                     onClick = { onOrdenChange(OrdenProductos.PRECIO) }
                 )
             }
@@ -277,11 +280,15 @@ private fun FormularioProducto(
     }
 }
 
-/** Botón de orden: se muestra relleno cuando es el orden que está activo. */
+/**
+ * Botón de orden: se muestra relleno cuando es el orden que está activo,
+ * con una flecha que indica el sentido (↑ ascendente, ↓ descendente).
+ */
 @Composable
 private fun BotonOrden(
     texto: String,
     seleccionado: Boolean,
+    ascendente: Boolean,
     onClick: () -> Unit
 ) {
     // Menos margen interno que un botón normal, para que quepan junto a Registrar.
@@ -289,7 +296,7 @@ private fun BotonOrden(
 
     if (seleccionado) {
         FilledTonalButton(onClick = onClick, contentPadding = margen) {
-            Text("↕ $texto")
+            Text(if (ascendente) "↑ $texto" else "↓ $texto")
         }
     } else {
         OutlinedButton(onClick = onClick, contentPadding = margen) {

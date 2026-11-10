@@ -4,8 +4,8 @@ import com.fabiancg.ejemplomvvm.model.Producto
 
 // Criterios disponibles para ordenar la lista de productos.
 enum class OrdenProductos {
-    NOMBRE, // De la A a la Z.
-    PRECIO  // De menor a mayor precio.
+    NOMBRE, // Por nombre del producto.
+    PRECIO  // Por precio del producto.
 }
 
 // Almacena toda la información que necesita
@@ -17,6 +17,9 @@ data class ProductoUiState(
 
     // Criterio con el que se ordena la lista de productos.
     val orden: OrdenProductos = OrdenProductos.NOMBRE,
+
+    // Sentido del orden: true = ascendente, false = descendente.
+    val ascendente: Boolean = true,
 
     // Datos ingresados en los campos del formulario.
     val codigo: String = "",
