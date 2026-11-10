@@ -69,6 +69,16 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         }
     }
 
+    fun cambiarLargo(valor: String) {
+        if (_uiState.value.procesando) return
+        // Solo aceptar dígitos y un separador decimal (coma o punto).
+        if (!valor.all { it in '0'..'9' || it == ',' || it == '.' }) return
+        if (valor.count { it == ',' || it == '.' } > 1) return
+        // Actualizar el largo del formulario.
+        _uiState.update {
+            it.copy(largo = valor, error = null, mensaje = null)
+        }
+    }
 
     fun cambiarDisponibilidad(valor: Boolean) {
         if (_uiState.value.procesando) return
@@ -84,6 +94,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                 codigo = producto.codigo,
                 nombre = producto.nombre,
                 precio = producto.precio.toString(),
+                largo = largoParaFormulario(producto.largo),
                 disponible = producto.disponible,
                 editandoCodigo = producto.codigo,
                 fechaOriginal = producto.fechaRegistro,
@@ -109,6 +120,8 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         val codigo = estado.codigo.trim().uppercase(Locale.ROOT)
         val nombre = estado.nombre.trim()
         val precio = estado.precio.trim().toIntOrNull()
+        // Aceptar coma o punto como separador decimal.
+        val largo = estado.largo.trim().replace(',', '.').toDoubleOrNull()
 
         if (codigo.isEmpty()) {
             mostrarError("Debe ingresar el código del producto.")
@@ -120,6 +133,10 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         }
         if (precio == null || precio <= 0) {
             mostrarError("El precio debe ser un número entero mayor que cero.")
+            return
+        }
+        if (largo == null || largo <= 0.0) {
+            mostrarError("El largo debe ser un número mayor que cero (en cm).")
             return
         }
 
@@ -136,6 +153,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                         codigo = estado.editandoCodigo!!,
                         nombre = nombre,
                         precio = precio,
+                        largo = largo,
                         disponible = estado.disponible
                     )
                 } else {
@@ -145,6 +163,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                             codigo = codigo,
                             nombre = nombre,
                             precio = precio,
+                            largo = largo,
                             fechaRegistro = LocalDate.now().toString(),
                             disponible = estado.disponible
                         )
@@ -226,10 +245,19 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         _uiState.update { it.copy(error = texto, mensaje = null) }
     }
 
+    // Convierte el largo guardado en el texto que se muestra al editar.
+    // Un largo 0 corresponde a un producto anterior a este campo: se deja vacío.
+    private fun largoParaFormulario(largo: Double): String = when {
+        largo <= 0.0 -> ""
+        largo % 1.0 == 0.0 -> largo.toLong().toString()
+        else -> largo.toString().replace('.', ',')
+    }
+
     private fun limpiarFormulario(estado: ProductoUiState): ProductoUiState = estado.copy(
         codigo = "",
         nombre = "",
         precio = "",
+        largo = "",
         disponible = true,
         editandoCodigo = null,
         fechaOriginal = null,

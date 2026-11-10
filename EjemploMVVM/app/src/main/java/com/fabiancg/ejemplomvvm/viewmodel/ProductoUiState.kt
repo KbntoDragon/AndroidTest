@@ -13,6 +13,7 @@ data class ProductoUiState(
     val codigo: String = "",
     val nombre: String = "",
     val precio: String = "",
+    val largo: String = "", // Largo en centímetros.
     val disponible: Boolean = true,
 
     // Código del producto que estamos editando.

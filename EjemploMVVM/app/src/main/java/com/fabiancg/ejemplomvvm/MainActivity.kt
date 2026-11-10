@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     onCodigoChange = { nuevoCodigo -> viewModel.cambiarCodigo(nuevoCodigo) },
                     onNombreChange = { nuevoNombre -> viewModel.cambiarNombre(nuevoNombre) },
                     onPrecioChange = { nuevoPrecio -> viewModel.cambiarPrecio(nuevoPrecio) },
+                    onLargoChange = { nuevoLargo -> viewModel.cambiarLargo(nuevoLargo) },
                     onDisponibleChange = { disponible -> viewModel.cambiarDisponibilidad(disponible) },
 
                     // Funciones para realizar las operaciones del mantenedor.

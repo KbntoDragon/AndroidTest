@@ -30,6 +30,7 @@ Este proyecto es una actualización directa de **EjemploMVVM.zip**. Se respetó 
 | Código | `String` | `codigo TEXT` | Clave primaria (`COLLATE NOCASE`); obligatorio, sin duplicados, aun si cambian mayúsculas/minúsculas |
 | Nombre | `String` | `nombre TEXT` | Obligatorio |
 | Precio | `Double` | `precio REAL` | Mayor que cero |
+| Largo | `Double` | `largo REAL` | En centímetros; mayor que cero (acepta decimales con coma o punto) |
 | Fecha de registro | `String` | `fecha_registro TEXT` | Fecha actual en formato ISO `YYYY-MM-DD` al crear; no cambia al editar |
 | Disponible | `Boolean` | `disponible INTEGER` | `1` = disponible; `0` = no disponible |
 
@@ -74,9 +75,9 @@ Compose actualiza la pantalla automáticamente
 
 ## Operaciones CRUD
 
-- **Crear:** valida código, nombre y precio. Agrega `LocalDate.now().toString()` y estado disponible/no disponible. Si el código existe, muestra un mensaje sin modificar la base.
+- **Crear:** valida código, nombre, precio y largo (cm). Agrega `LocalDate.now().toString()` y estado disponible/no disponible. Si el código existe, muestra un mensaje sin modificar la base.
 - **Leer:** al iniciar, ejecuta `SELECT` y muestra la lista ordenada por nombre. Después de cada operación se vuelve a leer la tabla para reflejar los cambios.
-- **Actualizar:** al tocar **Editar**, rellena el formulario y bloquea el código. Permite modificar nombre, precio y estado; se conserva fecha original.
+- **Actualizar:** al tocar **Editar**, rellena el formulario y bloquea el código. Permite modificar nombre, precio, largo y estado; se conserva fecha original.
 - **Eliminar:** al tocar **Eliminar**, aparece un diálogo de confirmación. Al aceptar, se borra el registro seleccionado.
 - **Cancelar edición:** vuelve al modo Registrar con el formulario limpio.
 

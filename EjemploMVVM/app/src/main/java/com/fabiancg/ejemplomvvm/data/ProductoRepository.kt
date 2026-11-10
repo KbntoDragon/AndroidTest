@@ -54,6 +54,7 @@ class ProductoRepository(context: Context) {
                         codigo = cursor.getString(colCodigo),
                         nombre = cursor.getString(colNombre),
                         precio = cursor.getInt(colPrecio),
+                        largo = cursor.getDouble(colLargo),
                         fechaRegistro = cursor.getString(colFecha),
                         disponible = cursor.getInt(colDisponible) == 1
                     )
@@ -101,6 +102,7 @@ class ProductoRepository(context: Context) {
         val valores = ContentValues().apply {
             put("nombre", nombre)
             put("precio", precio)
+            put("largo", largo)
             put("disponible", if (disponible) 1 else 0)
         }
 

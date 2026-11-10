@@ -49,6 +49,7 @@ fun ProductosScreen(
     onCodigoChange: (String) -> Unit,
     onNombreChange: (String) -> Unit,
     onPrecioChange: (String) -> Unit,
+    onLargoChange: (String) -> Unit,
     onDisponibleChange: (Boolean) -> Unit,
 
     // Función para registrar o actualizar un producto.
@@ -92,6 +93,7 @@ fun ProductosScreen(
                     onCodigoChange = onCodigoChange,
                     onNombreChange = onNombreChange,
                     onPrecioChange = onPrecioChange,
+                    onLargoChange = onLargoChange,
                     onDisponibleChange = onDisponibleChange,
                     onGuardar = onGuardar,
                     onCancelar = onCancelar
@@ -154,6 +156,7 @@ private fun FormularioProducto(
     onCodigoChange: (String) -> Unit,
     onNombreChange: (String) -> Unit,
     onPrecioChange: (String) -> Unit,
+    onLargoChange: (String) -> Unit,
     onDisponibleChange: (Boolean) -> Unit,
     onGuardar: () -> Unit,
     onCancelar: () -> Unit
@@ -195,6 +198,17 @@ private fun FormularioProducto(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = estado.largo,
+                onValueChange = onLargoChange,
+                label = { Text("Largo (cm)") },
+                enabled = habilitado,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -256,6 +270,16 @@ private fun TarjetaProducto(
         }
     }
 
+    // Formato del largo: hasta 2 decimales, con coma decimal.
+    val formatoLargo = remember {
+        NumberFormat.getNumberInstance(
+            Locale.forLanguageTag("es-CL")
+        ).apply {
+            minimumFractionDigits = 0
+            maximumFractionDigits = 2
+        }
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -265,6 +289,7 @@ private fun TarjetaProducto(
                 fontWeight = FontWeight.SemiBold)
             Text("Código: ${producto.codigo}")
             Text("Precio: $${formato.format(producto.precio)}")
+            Text("Largo: ${formatoLargo.format(producto.largo)} cm")
             Text("Fecha de registro: ${producto.fechaRegistro}")
             Text(
                 if (producto.disponible) "Estado: Disponible" else "Estado: No disponible",

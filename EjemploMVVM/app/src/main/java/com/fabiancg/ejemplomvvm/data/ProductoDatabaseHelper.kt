@@ -24,6 +24,7 @@ class ProductoDatabaseHelper(context: Context) : SQLiteOpenHelper(
                 codigo TEXT NOT NULL PRIMARY KEY COLLATE NOCASE,
                 nombre TEXT NOT NULL,
                 precio INTEGER NOT NULL CHECK (precio > 0),
+                largo REAL NOT NULL DEFAULT 0 CHECK (largo >= 0),
                 fecha_registro TEXT NOT NULL,
                 disponible INTEGER NOT NULL CHECK (disponible IN (0, 1))
             )
@@ -37,8 +38,13 @@ class ProductoDatabaseHelper(context: Context) : SQLiteOpenHelper(
         oldVersion: Int,
         newVersion: Int
     ) {
-        // Aquí se programan las modificaciones futuras
-        // de la estructura de la base de datos.
+        // Versión 2: se agrega el largo del producto en centímetros.
+        // Los productos que ya existían quedan con largo 0 hasta que se editen.
+        if (oldVersion < 2) {
+            db.execSQL(
+                "ALTER TABLE productos ADD COLUMN largo REAL NOT NULL DEFAULT 0 CHECK (largo >= 0)"
+            )
+        }
     }
 
     // Constantes que utiliza esta clase.
@@ -48,7 +54,7 @@ class ProductoDatabaseHelper(context: Context) : SQLiteOpenHelper(
         private const val NOMBRE_BD = "productos.db"
 
         // Versión actual de la estructura de la base de datos.
-        private const val VERSION_BD = 1
+        private const val VERSION_BD = 2
 
         // Nombre de la tabla de productos.
         const val TABLA_PRODUCTOS = "productos"
