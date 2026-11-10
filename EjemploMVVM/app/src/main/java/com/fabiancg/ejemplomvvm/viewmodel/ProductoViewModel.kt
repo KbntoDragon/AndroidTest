@@ -37,7 +37,9 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                 val productos = repository.listar()
 
                 // Actualizar el estado con los productos obtenidos.
-                _uiState.update { it.copy(productos = productos, cargando = false) }
+                _uiState.update {
+                    it.copy(productos = ordenar(productos, it.orden), cargando = false)
+                }
             } catch (e: Exception) {
 
                 // Informar si ocurrió un error al consultar.
@@ -77,6 +79,13 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
         // Actualizar el largo del formulario.
         _uiState.update {
             it.copy(largo = valor, error = null, mensaje = null)
+        }
+    }
+
+    // Cambia el criterio de orden y reordena la lista que ya está en pantalla.
+    fun cambiarOrden(orden: OrdenProductos) {
+        _uiState.update {
+            it.copy(orden = orden, productos = ordenar(it.productos, orden))
         }
     }
 
@@ -187,7 +196,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                 // Actualizar el estado de la interfaz.
                 _uiState.update {
                     limpiarFormulario(it).copy(
-                        productos = listaActualizada,
+                        productos = ordenar(listaActualizada, it.orden),
                         procesando = false,
                         mensaje = if (editando) "Producto actualizado correctamente."
                                   else "Producto registrado correctamente."
@@ -227,7 +236,7 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
                         estado
                     }
                     nuevoEstado.copy(
-                        productos = listaActualizada,
+                        productos = ordenar(listaActualizada, estado.orden),
                         procesando = false,
                         mensaje = if (eliminado) "Producto eliminado correctamente." else null,
                         error = if (eliminado) null else "El producto ya no existe."
@@ -243,6 +252,22 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
 
     private fun mostrarError(texto: String) {
         _uiState.update { it.copy(error = texto, mensaje = null) }
+    }
+
+    // Devuelve la lista ordenada según el criterio elegido.
+    private fun ordenar(productos: List<Producto>, orden: OrdenProductos): List<Producto> {
+        // Comparar nombres sin distinguir mayúsculas de minúsculas.
+        val porNombre = compareBy<Producto, String>(String.CASE_INSENSITIVE_ORDER) { it.nombre }
+            .thenBy { it.codigo }
+
+        return when (orden) {
+            // Por nombre, de la A a la Z.
+            OrdenProductos.NOMBRE -> productos.sortedWith(porNombre)
+            // Por precio, de menor a mayor. Si el precio es igual, por nombre.
+            OrdenProductos.PRECIO -> productos.sortedWith(
+                compareBy<Producto> { it.precio }.then(porNombre)
+            )
+        }
     }
 
     // Convierte el largo guardado en el texto que se muestra al editar.

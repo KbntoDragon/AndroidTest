@@ -43,6 +43,9 @@ class MainActivity : ComponentActivity() {
                     onLargoChange = { nuevoLargo -> viewModel.cambiarLargo(nuevoLargo) },
                     onDisponibleChange = { disponible -> viewModel.cambiarDisponibilidad(disponible) },
 
+                    // Función que se ejecuta al elegir un orden para la lista.
+                    onOrdenChange = { orden -> viewModel.cambiarOrden(orden) },
+
                     // Funciones para realizar las operaciones del mantenedor.
 
                     // Guardar un producto nuevo o modificado.

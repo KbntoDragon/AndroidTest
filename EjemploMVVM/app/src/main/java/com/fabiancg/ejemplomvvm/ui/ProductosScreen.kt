@@ -2,6 +2,8 @@ package com.fabiancg.ejemplomvvm.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +18,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -35,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.fabiancg.ejemplomvvm.model.Producto
+import com.fabiancg.ejemplomvvm.viewmodel.OrdenProductos
 import com.fabiancg.ejemplomvvm.viewmodel.ProductoUiState
 import java.text.NumberFormat
 import java.util.Locale
@@ -51,6 +55,9 @@ fun ProductosScreen(
     onPrecioChange: (String) -> Unit,
     onLargoChange: (String) -> Unit,
     onDisponibleChange: (Boolean) -> Unit,
+
+    // Función que recibe el orden elegido para la lista (por nombre o por precio).
+    onOrdenChange: (OrdenProductos) -> Unit,
 
     // Función para registrar o actualizar un producto.
     onGuardar: () -> Unit,
@@ -95,6 +102,7 @@ fun ProductosScreen(
                     onPrecioChange = onPrecioChange,
                     onLargoChange = onLargoChange,
                     onDisponibleChange = onDisponibleChange,
+                    onOrdenChange = onOrdenChange,
                     onGuardar = onGuardar,
                     onCancelar = onCancelar
                 )
@@ -150,6 +158,7 @@ fun ProductosScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class) // Necesario para usar FlowRow.
 @Composable
 private fun FormularioProducto(
     estado: ProductoUiState,
@@ -158,6 +167,7 @@ private fun FormularioProducto(
     onPrecioChange: (String) -> Unit,
     onLargoChange: (String) -> Unit,
     onDisponibleChange: (Boolean) -> Unit,
+    onOrdenChange: (OrdenProductos) -> Unit,
     onGuardar: () -> Unit,
     onCancelar: () -> Unit
 ) {
@@ -240,7 +250,8 @@ private fun FormularioProducto(
                 Text(mensaje, color = MaterialTheme.colorScheme.primary)
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // FlowRow pasa los botones a la línea siguiente si no caben en una sola.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onGuardar, enabled = habilitado) {
                     Text(if (editando) "Guardar cambios" else "Registrar")
                 }
@@ -249,7 +260,40 @@ private fun FormularioProducto(
                         Text("Cancelar")
                     }
                 }
+
+                // Botones para ordenar la lista de productos.
+                BotonOrden(
+                    texto = "Nombre",
+                    seleccionado = estado.orden == OrdenProductos.NOMBRE,
+                    onClick = { onOrdenChange(OrdenProductos.NOMBRE) }
+                )
+                BotonOrden(
+                    texto = "Precio",
+                    seleccionado = estado.orden == OrdenProductos.PRECIO,
+                    onClick = { onOrdenChange(OrdenProductos.PRECIO) }
+                )
             }
+        }
+    }
+}
+
+/** Botón de orden: se muestra relleno cuando es el orden que está activo. */
+@Composable
+private fun BotonOrden(
+    texto: String,
+    seleccionado: Boolean,
+    onClick: () -> Unit
+) {
+    // Menos margen interno que un botón normal, para que quepan junto a Registrar.
+    val margen = PaddingValues(horizontal = 12.dp)
+
+    if (seleccionado) {
+        FilledTonalButton(onClick = onClick, contentPadding = margen) {
+            Text("↕ $texto")
+        }
+    } else {
+        OutlinedButton(onClick = onClick, contentPadding = margen) {
+            Text("↕ $texto")
         }
     }
 }
